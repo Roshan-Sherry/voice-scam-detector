@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo Test</title>
+</head>
+<body>
+    <button onclick="testDemo()">Test Demo Scenario</button>
+    <div id="output"></div>
+    
+    <script>
+        // Simple test to check if demo scenarios work
+        async function testDemo() {
+            console.log('Testing demo scenarios...');
+            
+            // Test scenario data
+            const testScenario = {
+                id: 'test_scam',
+                title: 'Test IRS Scam',
+                language: 'en',
+                maxRisk: 96,
+                duration: 5000,
+                description: 'Test scam scenario',
+                messages: [
+                    { 
+                        speaker: 'Caller', 
+                        text: 'This is Officer Johnson from the IRS.', 
+                        risk: 65, 
+                        timestamp: 0,
+                        analysis: 'Government impersonation detected'
+                    },
+                    { 
+                        speaker: 'Caller', 
+                        text: 'You owe $2,500 in back taxes. Pay immediately with Bitcoin.', 
+                        risk: 96, 
+                        timestamp: 2000,
+                        analysis: 'Payment demand with cryptocurrency - clear scam'
+                    }
+                ]
+            };
+            
+            console.log('Test scenario:', testScenario);
+            
+            // Simulate message playback
+            for (const message of testScenario.messages) {
+                console.log(`${message.speaker}: ${message.text} (Risk: ${message.risk})`);
+                
+                // Show in output
+                const output = document.getElementById('output');
+                output.innerHTML += `<p><strong>${message.speaker}:</strong> ${message.text} <em>(Risk: ${message.risk})</em></p>`;
+                
+                // Wait for timestamp
+                if (message.timestamp > 0) {
+                    await new Promise(resolve => setTimeout(resolve, message.timestamp / 10)); // Speed up for testing
+                }
+            }
+            
+            console.log('Demo test completed!');
+        }
+    </script>
+</body>
+</html>
