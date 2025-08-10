@@ -797,15 +797,8 @@ class VoiceScamMobileApp {
                 this.showAlert('🚨 SCAM DETECTED: High-risk patterns identified', 'scam');
                 this.performance.scamsDetected++;
                 
-                if (this.settings.voice_alerts) {
-                    this.speakAlert('Scam detected. This call appears dangerous. Do not provide any personal information.');
-                }
             } else if (message.risk >= this.settings.suspicious_threshold) {
                 this.showAlert('⚠️ SUSPICIOUS: Potentially risky content detected', 'warning');
-                
-                if (this.settings.voice_alerts) {
-                    this.speakAlert('This call seems suspicious. Please be cautious.');
-                }
             }
             
             // Auto-expand transcript for high-risk messages
