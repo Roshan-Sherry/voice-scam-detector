@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .scenario { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        .message { margin: 5px 0; padding: 5px; background: #f5f5f5; }
+        .high-risk { background: #ffebee; }
+        .log { background: #f0f0f0; padding: 10px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Voice Scam Shield - Demo Debug</h1>
+    
+    <button onclick="testBasicDemo()">Test Basic Demo</button>
+    <button onclick="testScenarioSelection()">Test Scenario Selection</button>
+    <button onclick="testFullApp()">Test Full App</button>
+    
+    <div id="output"></div>
+    <div id="log" class="log"></div>
+    
+    <script src="api.js"></script>
+    <script>
+        function log(message) {
+            console.log(message);
+            const logDiv = document.getElementById('log');
+            logDiv.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function testBasicDemo() {
+            log('🧪 Testing basic demo functionality...');
+            
+            const testScenario = {
+                id: 'test_scenario',
+                title: 'Test Scam Call',
+                language: 'en',
+                maxRisk: 85,
+                duration: 5000,
+                messages: [
+                    { 
+                        speaker: 'Caller', 
+                        text: 'Hello, this is from your bank security department.', 
+                        risk: 45, 
+                        timestamp: 0,
+                        analysis: 'Generic security claim'
+                    },
+                    { 
+                        speaker: 'Caller', 
+                        text: 'We need you to verify your account by providing your PIN.', 
+                        risk: 85, 
+                        timestamp: 2000,
+                        analysis: 'Requesting sensitive information - high risk'
+                    }
+                ]
+            };
+            
+            log('📋 Test scenario created: ' + testScenario.title);
+            
+            // Simulate playing messages
+            const output = document.getElementById('output');
+            output.innerHTML = '<h3>Demo: ' + testScenario.title + '</h3>';
+            
+            testScenario.messages.forEach((message, index) => {
+                setTimeout(() => {
+                    log(`💬 ${message.speaker}: ${message.text} (Risk: ${message.risk})`);
+                    
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message' + (message.risk > 70 ? ' high-risk' : '');
+                    messageDiv.innerHTML = `<strong>${message.speaker}:</strong> ${message.text} <em>(Risk: ${message.risk}/100)</em>`;
+                    output.appendChild(messageDiv);
+                }, index * 1000);
+            });
+            
+            log('✅ Basic demo test completed');
+        }
+        
+        function testScenarioSelection() {
+            log('🧪 Testing scenario selection...');
+            
+            // Check if VoiceScamAPI is available
+            if (typeof VoiceScamAPI !== 'undefined') {
+                log('✅ VoiceScamAPI loaded');
+                const api = new VoiceScamAPI();
+                log('✅ API instance created');
+            } else {
+                log('❌ VoiceScamAPI not found');
+            }
+            
+            // Create a simplified app instance
+            const demoScenarios = [
+                {
+                    id: 'simple_test',
+                    title: 'Simple Test Scenario',
+                    language: 'en',
+                    maxRisk: 60,
+                    messages: [
+                        { speaker: 'Caller', text: 'Test message', risk: 60, timestamp: 0, analysis: 'Test' }
+                    ]
+                }
+            ];
+            
+            log('📊 Created ' + demoScenarios.length + ' demo scenarios');
+            
+            // Test scenario selection logic
+            const languageScenarios = demoScenarios.filter(s => s.language === 'en');
+            const selectedScenario = languageScenarios[Math.floor(Math.random() * languageScenarios.length)];
+            
+            log('🎯 Selected scenario: ' + selectedScenario.title);
+            log('✅ Scenario selection test completed');
+        }
+        
+        function testFullApp() {
+            log('🧪 Testing full app integration...');
+            
+            setTimeout(() => {
+                if (typeof window.VoiceScamShield !== 'undefined') {
+                    log('✅ Full app detected');
+                    const app = window.VoiceScamShield;
+                    log('📊 Demo scenarios in app: ' + app.demoScenarios.length);
+                    
+                    if (app.demoScenarios.length > 0) {
+                        log('🎭 Testing app demo scenario...');
+                        const testScenario = app.demoScenarios[0];
+                        log('📋 Using scenario: ' + testScenario.title);
+                        
+                        // Try to run the scenario
+                        try {
+                            app.runDemoScenario(testScenario);
+                            log('✅ Demo scenario triggered successfully');
+                        } catch (error) {
+                            log('❌ Error running demo scenario: ' + error.message);
+                        }
+                    } else {
+                        log('❌ No demo scenarios found in app');
+                    }
+                } else {
+                    log('❌ Full app not loaded yet');
+                }
+            }, 1000);
+        }
+        
+        // Auto-start basic test
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('🚀 Debug page loaded');
+                testBasicDemo();
+            }, 500);
+        });
+    </script>
+    
+    <!-- Load the full app after our tests are ready -->
+    <script>
+        // Load the main app after a delay to test integration
+        setTimeout(() => {
+            const script = document.createElement('script');
+            script.src = 'app.js';
+            document.head.appendChild(script);
+            log('📱 Main app loaded');
+        }, 2000);
+    </script>
+</body>
+</html>
