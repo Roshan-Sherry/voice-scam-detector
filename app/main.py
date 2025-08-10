@@ -224,17 +224,57 @@ async def analyze(req: AnalyzeRequest):
             bonafide_score = 1.0
 
     # 4) Simple scam detection heuristics (keywords + regex)
+    # Categorized scam keywords — all lowercase for matching
     suspicious_keywords = [
-        "money", "transfer", "urgent", "otp", "password", "code", "verification",
-        "bank account", "credit card", "loan", "wire", "security code"
+        # Money & Payment
+        "money", "transfer", "payment", "deposit", "withdraw", "remit",
+        "wire", "transaction", "send funds", "fund transfer",
+        "bank account", "credit card", "debit card", "routing number",
+        "account number", "swift code", "iban", "loan", "mortgage",
+
+        # Urgency & Pressure
+        "urgent", "immediately", "as soon as possible", "act now", "limited time",
+        "final notice", "your account will be closed", "your service will be suspended",
+
+        # Credentials & Security
+        "otp", "one time password", "password", "pin", "passcode", "code",
+        "verification", "verification code", "security code",
+        "confirm your identity", "login details", "account credentials",
+
+        # Tech Support / Impersonation
+        "technical support", "customer support", "it department",
+        "microsoft support", "apple support", "google support",
+        "remote access", "teamviewer", "anydesk",
+
+        # Government / Authority Threats
+        "irs", "income tax", "tax department", "customs", "police",
+        "warrant", "arrest", "immigration", "visa", "passport office",
+
+        # Lottery / Prize Scams
+        "you have won", "congratulations you won", "prize", "lottery", "jackpot",
+        "lucky draw", "reward", "gift card", "cash prize",
+
+        # Investments / Crypto
+        "bitcoin", "crypto", "cryptocurrency", "investment scheme",
+        "double your money", "guaranteed returns", "forex",
+
+        # Phishing Phrases
+        "click the link", "click here", "visit this link", "follow the link",
+        "enter your details", "fill out the form", "provide your information",
+
+        # Other Social Engineering
+        "update your account", "re-activate your account", "suspend your account",
+        "your account is compromised", "security alert", "unusual activity detected"
     ]
+
     flagged_segments = []
     keyword_hit_score = 0.0
 
     import re
-    phone_pattern = re.compile(r"\b\d{3}[-\s]?\d{3}[-\s]?\d{4}\b")
-    currency_pattern = re.compile(r"(\$|₹|€)\s?\d+")
+    phone_pattern = re.compile(r"\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b")
+    currency_pattern = re.compile(r"(?:\$|₹|€|£)\s?\d+(?:[.,]\d{2})?")
     verification_pattern = re.compile(r"(verification|security)\s+code", re.I)
+    url_pattern = re.compile(r"https?://[^\s]+", re.I)
 
     for seg in transcript:
         text = seg.get("text", "")
@@ -247,6 +287,8 @@ async def analyze(req: AnalyzeRequest):
             hits.append("currency_amount")
         if verification_pattern.search(text):
             hits.append("verification_code")
+        if url_pattern.search(text):
+            hits.append("suspicious_url")
 
         if hits:
             flagged_segments.append({**seg, "keywords": hits})
